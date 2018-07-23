@@ -23,7 +23,7 @@
 #TARGET_LINK_LIBRARIES(${PROJECT_NAME} m)
  
 set(algorithms
-	src/data_struct/data_struct
+	src/data_struct/data_struct.h
 	src/data_struct/data_struct.cpp
 	src/sort/sort.h
 	src/sort/sort.cpp
