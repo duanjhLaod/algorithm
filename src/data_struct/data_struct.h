@@ -72,7 +72,7 @@ enum RBTreeColor
 	BLACK
 };
 
-struct RBTreeNode
+struct RBTreeNode:TreeNode
 {
 	int data;
 	RBTreeColor color;
@@ -82,7 +82,7 @@ struct RBTreeNode
 };
 
 //红黑树
-class RBTree
+class RBTree : SearchTree
 {
 public:
 	RBTreeNode * root;
@@ -95,4 +95,5 @@ public:
 	void tree_insert(RBTreeNode* node); //插入
 	void tree_transplant(RBTreeNode* u, RBTreeNode* v); //将u替换v
 	void tree_delete(RBTreeNode* node); //删除节点
+	void tree_delete_fixup(RBTreeNode* node); //删除节点
 };

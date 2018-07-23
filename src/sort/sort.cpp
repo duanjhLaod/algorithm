@@ -621,7 +621,60 @@ void random_quick_sort(int* a, int len, int start, int end)
 	}
 }
 
+/**
+*计数排序
+*a 待排序的数组
+*b 输出数组
+*k 排序的数组元素均小于k
+*/
+void counting_sort(int* a, int* b, int len, int k)
+{
+	vector<int> c(k);
+	for (int i = 0; i < k; ++i)
+	{
+		c[i] = 0;
+	}
 
+	for (int i = 0; i < len; ++i)
+	{
+		c[a[i]] += 1;
+	}
+
+	for (int i = 1; i < k; ++i)
+	{
+		c[i] += c[i - 1];
+	}
+
+	for (int i = len - 1; i >= 0; --i)
+	{
+		b[c[a[i]]] = a[i];
+		c[a[i]] -= 1;
+	}
+}
+
+
+//找出数组A中第i小的元素
+int randomized_select(int* A, int begin, int end, int i)
+{
+	if (begin == end)
+		return A[begin];
+
+	int q = quick_sort_random_partion(A, begin, end);
+	int k = q - begin + 1;
+	if (i == k)
+	{
+		return A[q];
+	}
+	else if(k>i)
+	{
+		return randomized_select(A, begin, q - 1, i);
+	}
+	else
+	{
+		return randomized_select(A, q + 1, end, i - k);
+	}
+
+}
 
 //monge矩阵测试
 void test_check_monge_matrix()

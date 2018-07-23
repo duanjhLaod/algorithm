@@ -463,3 +463,85 @@ void RBTree::tree_transplant(RBTreeNode* u, RBTreeNode* v)
 	}
 	u->parent = v->parent;
 }
+
+void RBTree::tree_delete(RBTreeNode* node)
+{
+	RBTreeNode* y = node;
+	RBTreeColor originalColor = y->color;
+	RBTreeNode* x = nullptr;
+	if (node->left == nullptr) //左子节点为空
+	{
+		x = node->right;
+		tree_transplant(node->right, node);
+	}
+	else if(node->right==nullptr) //右子节点为空
+	{
+		x = node->left;
+		tree_transplant(node->left, node);
+	}
+	else
+	{
+		y = (RBTreeNode*)this->tree_minnum(node->right);
+		originalColor = y->color;
+		x = y->right;
+		if (y->parent == node)
+		{
+			x->parent = y;
+		}
+		else
+		{
+			tree_transplant(y->right, y);
+			y->right = node->right;
+			y->right->parent = y;
+		}
+
+		tree_transplant(y, node);
+		y->left = node->left;
+		y->left->parent = y;
+		y->color = node->color;
+	}
+
+	if (originalColor == BLACK)
+	{
+		tree_delete_fixup(x);
+	}
+}
+
+void RBTree::tree_delete_fixup(RBTreeNode* node)
+{
+	while (node!=this->root && node->color==BLACK)
+	{
+		if (node == node->parent->left)
+		{
+			RBTreeNode* y = node->parent->right;
+			if (y->color == RED)
+			{
+				y->color = BLACK;
+				y->parent->color = RED;
+				this->tree_left_rotate(node->parent);
+				y = node->parent->right;
+			}
+
+			if (y->left->color == BLACK && y->right->color == BLACK)
+			{
+				y->color = RED;
+				node = node->parent;
+			}
+			else if(y->right->color==BLACK)
+			{
+				y->left->color = BLACK;
+				y->color = RED;
+				this->tree_right_rotate(y);
+				y = node->parent->right;
+			}
+			else
+			{
+				y->color = node->parent->color;
+				node->parent->color = BLACK;
+				y->right->color = BLACK;
+				this->tree_left_rotate(node->parent);
+				node = this->root;
+			}
+		}
+	}
+}
