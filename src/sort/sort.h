@@ -5,6 +5,9 @@
 #define RIGHT(i) i==0?2:(i<<1)+1;
 #define PATENT(i) i>>1;
 
+void test_minEatingSpeed();
+void test_findMaximumXOR();
+
 //×îÐ¡¶Ñ
 template<class T> class MinHeap
 {

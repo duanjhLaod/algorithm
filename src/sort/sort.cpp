@@ -3,6 +3,9 @@
 #include "list"
 #include "vector"
 #include <iterator>
+#include <limits.h>
+#include <unordered_set>
+#include <unordered_map>
 
 using namespace std;
 
@@ -729,4 +732,316 @@ void test_quick_sort()
 	int arr2[] = { 13,19,9,5,12,8,7,4,21,2,6,11 };
 	printf("\nrandom quick sort:\n");
 	random_quick_sort(arr2, 12, 0, 11);
+}
+
+
+vector<int> smallestRange(vector<vector<int>>& nums) {
+
+	vector<vector<int>::iterator> iters;
+	for (int i = 0; i < nums.size(); ++i)
+	{
+		if(nums[i].size()>0)
+			iters.push_back(nums[i].begin());
+	}
+
+	
+
+	int range = -1;
+	int rmin = -1, rmax = -1;
+
+	bool flag = true;
+	while (flag)
+	{
+		int left = -1, right = -1; //范围
+		vector<int>::iterator iter;
+		int minindex = -1; //当前最小值所在的队列编号
+		for (int i = 0; i < iters.size(); ++i)
+		{
+			vector<int>::iterator it = iters.at(i);
+			int a = *it;
+			if (right < 0 || right < a)
+				right = a;
+			if (left<0 || left>a)
+			{
+				left = a;
+				iter = it;
+			}
+
+			if (range<0 || right - left >range)
+			{
+				range = right - left;
+				rmin = left;
+				rmax = right;
+				minindex = i;
+			}
+		}
+		++iter;
+		if (iter == nums[minindex].end()) //已到最小值所在序列的末尾
+		{
+			flag = false;
+			break;
+		}
+	}
+
+
+	vector<int> rangeV(2);
+	rangeV[0] = rmin;
+	rangeV[1] = rmax;
+
+	return rangeV;
+}
+
+
+//快排的划分算法
+int quick_sort_partion(vector<int> &a, int start, int end)
+{
+	int x = a[end];
+	int i = start - 1;
+	for (int j = start; j < end; ++j)
+	{
+		if (a[j] < x)
+		{
+			++i;
+			int temp = a[i];
+			a[i] = a[j];
+			a[j] = temp;
+		}
+	}
+
+	if ((i + 1) != end)
+	{
+		int temp = a[i+1];
+		a[i+1] = a[end];
+		a[end] = temp;
+	}
+
+	return i + 1;
+}
+
+//快速排序
+vector<int> quick_sort(vector<int> &a, int start, int end)
+{
+	if (start < end)
+	{
+		int p = quick_sort_partion(a, start, end);
+
+		quick_sort(a, start, p - 1);
+		quick_sort(a, p + 1, end);
+	}
+
+	return a;
+}
+
+int minEatingSpeed(vector<int>& piles, int H) {
+	
+	if (piles.size() > H || piles.size()<=0) //不合题意，排除
+		return -1;
+
+	if (piles.size() == H) //size和时间一样,直接找出最大值
+	{
+		int maxN = INT_MIN;
+		for (vector<int>::iterator it = piles.begin(); it != piles.end(); ++it)
+		{
+			if (*it > maxN)
+			{
+				maxN = *it;
+			}
+		}
+
+		return maxN;
+	}
+	else
+	{
+		int midK = INT_MAX;
+
+		int start = 0;
+		int end = piles.size()-1;
+
+		if (start == end) //只有一个值
+		{
+			int k = piles[0] / H;
+			if (piles[0] % H > 0)
+			{
+				++k;
+			}
+
+			return k;
+		}
+
+		vector<int> pilelist = quick_sort(piles, 0, piles.size() - 1); //先排序
+		int mid = 0;
+		bool isAmple = false; //当前轮次之后时间是充足还是不够
+		while (start<end)
+		{
+			mid = (start + end) >> 1;
+			midK = pilelist[mid];
+			int leftH = H - mid;
+			for (int i = mid; i < pilelist.size(); ++i)
+			{
+				leftH -= pilelist[i] / midK; //该堆香蕉需要消耗的时间,需要向上取整
+				if (pilelist[i] % midK > 0)
+				{
+					--leftH;
+				}
+				if (leftH < 0)
+					break;
+			}
+
+			if(leftH<0) //时间不够,说明得向右移找更大的值
+			{
+				start = mid + 1;
+				isAmple = false;
+			}
+			else //时间很充足,可以尝试找一个小值
+			{
+				end = mid;
+				isAmple = true;
+			}
+
+			std::cout << mid << ":" << isAmple << std::endl;
+		}
+
+		//通过判断最后一轮时间是否充足来确认范围 时间充足则寻找mid-1到mid之间,时间不足则寻找mid到mid+1之间
+		int leftCount = 0, rightCount = 0;
+		if (isAmple)
+		{
+			leftCount = mid == 0 ? 1 : pilelist[mid - 1];
+			rightCount = pilelist[mid];
+		}
+		else
+		{
+			leftCount = pilelist[mid];
+			rightCount = pilelist[mid + 1];
+		}
+
+		int midCount = 0;
+		while (leftCount<rightCount)
+		{
+			midCount = (leftCount + rightCount) >> 1;
+			int leftH = H;
+			for (vector<int>::iterator it = piles.begin(); it != piles.end(); ++it)
+			{
+				leftH -= *it / midCount; //该堆香蕉需要消耗的时间,需要向上取整
+				if (*it % midCount > 0)
+				{
+					--leftH;
+				}
+				if(leftH<0)
+					break;
+			}
+
+			if (leftH < 0)
+			{
+				leftCount = midCount + 1;
+			}
+			else
+			{
+				rightCount = midCount;
+			}
+		}
+
+		return leftCount;
+	}
+}
+
+void test_minEatingSpeed()
+{
+	vector<int> piles(4);
+	piles[0] = 3;
+	piles[1] = 6;
+	piles[2] = 7;
+	piles[3] = 11;
+
+	vector<int> piles1(1);
+	piles1[0] = 123456;
+	int count = minEatingSpeed(piles1, 654321);
+	std::cout<< count << std::endl;
+}
+
+//max=a^b, a=max^b
+int findMaximumXOR(vector<int>& nums) {
+
+	int mask = 0, res =0;
+	unordered_set<int> sets;
+	for (int i = 31; i >= 0; --i)
+	{
+		mask |= 1 << i;
+		
+		for (int num : nums)
+		{
+			sets.insert(num&mask);
+		}
+
+		int tmp = res | (1 << i);
+		for (int num : sets)
+		{
+			if (sets.count(tmp^num))
+			{
+				std::cout << tmp << ":" << num << ":" << res << std::endl;
+				res = tmp;
+				break;
+			}
+		}
+		sets.clear();
+	}
+
+	return res;
+}
+
+void test_findMaximumXOR()
+{
+	vector<int> piles(6);
+	piles[0] = 3;
+	piles[1] = 10;
+	piles[2] = 5;
+	piles[3] = 25;
+	piles[4] = 2;
+	piles[5] = 8;
+
+	int maxnum = findMaximumXOR(piles);
+	std::cout << maxnum << std::endl;
+}
+
+int flipgame(vector<int>& fronts, vector<int>& backs) {
+	unordered_map<int, int> nums;
+	for (int i = 0; i < fronts.size(); ++i)
+	{
+		unordered_map<int, int>::iterator it = nums.find(fronts[i]);
+		if (it != nums.end())
+		{
+			++(*it).second;
+		}
+		else
+		{
+			if(fronts[i]!=backs[i])
+				nums.insert(pair<int,int>(fronts[i], 1));
+			else
+			{
+				nums.insert(pair<int, int>(fronts[i], 2));
+			}
+		}
+	}
+
+	for (int i = 0; i < backs.size(); ++i)
+	{
+		unordered_map<int, int>::iterator it = nums.find(backs[i]);
+		if (it == nums.end())
+		{
+			nums.insert(pair<int, int>(fronts[i], 1));
+		}
+	}
+
+	int value = 0;
+	for (auto it : nums)
+	{
+		if (it.second == 1)
+		{
+			if (value == 0 || it.first < value)
+			{
+				value = it.first;
+			}
+		}
+	}
+
+	return value;
 }

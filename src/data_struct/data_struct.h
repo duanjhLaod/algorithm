@@ -1,6 +1,11 @@
 #pragma once
 #include "stdio.h"
 
+//最长公共子链
+int lcs_length(char* A, char* B, int lenA, int lenB);
+void test_lcs();
+void test_optimal_bst();
+
 //链表对象
 struct listNode
 {

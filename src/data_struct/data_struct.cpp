@@ -1,5 +1,6 @@
 #include "data_struct.h"
-#include "iostream"
+#include <iostream>
+#include <vector>
 
 void ListStack::push(int x)
 {
@@ -446,7 +447,7 @@ void RBTree::tree_insert_fixup(RBTreeNode* node)
 		}
 	}
 
-	this->root->color == BLACK;
+	this->root->color = BLACK;
 }
 
 void RBTree::tree_transplant(RBTreeNode* u, RBTreeNode* v)
@@ -543,5 +544,217 @@ void RBTree::tree_delete_fixup(RBTreeNode* node)
 				node = this->root;
 			}
 		}
+	}
+}
+
+
+//最长公共子链
+int lcs_length(char* A, char* B, int lenA, int lenB)
+{
+	int c[8][7] = {};
+	for (int i = 0; i <= lenA; ++i)
+	{
+		c[i][0] = 0;
+	}
+
+	for (int j = 0; j <= lenB; ++j)
+	{
+		c[0][j] = 0;
+	}
+
+	for (int i = 1; i <= lenA; ++i)
+	{
+		for (int j = 1; j <= lenB; ++j)
+		{
+			if (A[i-1] == B[j-1])
+			{
+				c[i][j] = c[i - 1][j - 1] + 1;
+			}
+			else if(c[i-1][j]>=c[i][j-1])
+			{
+				c[i][j] = c[i - 1][j];
+			}
+			else
+			{
+				c[i][j] = c[i][j - 1];
+			}
+		}
+	}
+
+	int k = lenA, m = lenB;
+	while (k>0 && m>0)
+	{
+		if (c[k][m] == c[k-1][m])
+		{
+			--k;
+		}
+		else if(c[k][m]==c[k][m-1])
+		{
+			--m;
+		}
+		else
+		{
+			--m;
+			--k;
+			std::cout << A[k];
+		}
+	}
+
+
+	std::cout << "lcs:" << c[lenA][lenB]<<std::endl;
+	return c[lenA-1][lenB-1];
+}
+
+void test_lcs()
+{
+	char A[] = { 'A','B','C', 'B', 'D', 'A','B' };
+	char B[] = { 'B','D','C', 'A', 'B', 'A' };
+
+	lcs_length(A, B, 7, 6);
+}
+
+//用中序遍历打印最优二叉树的根节点排序
+void optimal_bst_print_root(std::vector<std::vector<int>> root,int start, int end)
+{
+	if (start > end)
+		return;
+
+	if (start == end) //没有子树了
+	{
+		std::cout << " " << start;
+		return;
+	}
+	int index = root[start][end];
+	std::cout << " " << index;
+	optimal_bst_print_root(root, start, index - 1);
+	optimal_bst_print_root(root, index + 1, end);
+}
+
+/**
+*最优二叉搜索树
+*返回值为根节点列表
+**/
+std::vector<std::vector<int>> optimal_bst(int* p, int* q, int n)
+{
+	std::vector<std::vector<int>> e; //保存期望
+	std::vector<std::vector<int>> w; //保存总概率
+	std::vector<std::vector<int>> root; //保存root节点
+
+	for (int i = 0; i < n+1; ++i)
+	{
+		e.push_back(std::vector<int>(n));
+		w.push_back(std::vector<int>(n));
+		root.push_back(std::vector<int>(n));
+		for (int j = 0; j < n; ++j)
+		{
+			e[i].push_back(0);
+			w[i].push_back(0);
+			root[i].push_back(0);
+		}
+	}
+
+	//初始化[i,i-1]形式,只有一个d[i-1]
+	for (int i = 1; i <= n; ++i)
+	{
+		e[i][i-1] = q[i-1];
+		w[i][i-1] = q[i-1];
+	}
+
+	//i从1到n+1,j从0到n
+	for (int k = 1; k <= n; ++k)
+	{
+		for (int i = 1; i <= n - k + 1; ++i)
+		{
+			int j = i + k - 1;
+			e[i][j] = -1;
+			w[i][j] = w[i][j - 1] + p[j] + q[j]; //这一行也很重要
+
+			for (int r = i; r < j; ++r) //寻找[i,j]的root节点k
+			{				
+				int t = e[i][r - 1] + e[r + 1][j] + w[i][j];  //这一行是关键（期望就是节点k的左右子树期望只和加上w[i][j]的概率）
+				if (e[i][j] < 0 || t < e[i][j])
+				{
+					e[i][j] = t;
+					root[i][j] = r;
+
+					std::cout <<r << " for " << i << ":" << j << std::endl;
+				}
+			}
+		}
+	}
+
+	optimal_bst_print_root(root, 1, n);
+	return root;
+}
+
+void test_optimal_bst()
+{
+	int p[] = { 0,4,6,8,2,10,12,14 };
+	int q[] = { 6,6,6,6,5,5,5,5 };
+
+	optimal_bst(p, q, 7);
+}
+
+int distance(int a[2], int b[2])
+{
+	return (a[0] - b[0])*(a[0] - b[0]) + (a[1] - b[1])*(a[1] - b[1]);
+}
+
+void bitonic_tours_printf(std::vector<std::vector<int>> p, int p1, int p2)
+{
+	std::cout << p[p1][p2] << " ";
+	bitonic_tours_printf(p, p[p1][p2], p2);
+}
+
+//双调欧几里得旅行商
+int bitonic_tours(int points[][2], int len)
+{
+	if (len == 0)
+		return 0;
+	if (len == 1)
+		return distance(points[0], points[1]);
+
+	//TODO 先按照x排序(用快排)
+
+	using namespace std;
+	vector<vector<int>> D(len);
+	vector<vector<int>> p(len);
+	for (int i = 0; i < len; ++i)
+	{
+		D[i] = vector<int>(len);
+		p[i] = vector<int>(len);
+	}
+
+	D[0][1] = distance(points[0], points[1]);
+	p[0][0] = 0;
+	for (int j = 1; j < len; ++j)
+	{
+		for (int i = 0; i <j-1; ++i)
+		{
+			D[i][j] = D[i][j - 1] + distance(points[j - 1], points[j]);
+		}
+
+		D[j - 1][j] = -1;
+		for (int k = 0; k < j-1; ++k)
+		{
+			int dis = D[k][j] + distance(points[k], points[j - 1]);
+			if (D[j - 1][j]<0 || D[j - 1][j]>dis)
+			{
+				D[j - 1][j] = dis;
+				p[j - 1][j] = k;
+			}
+		}
+		
+		D[j][j] = -1;
+		for (int k = 0; k < j; ++j)
+		{
+			int dis= D[k][j] + distance(points[k], points[j]);
+			if (D[j][j]<0 || D[j][j]>dis)
+			{
+				D[j][j] = dis;
+				p[j][j] = k;
+			}
+		}
+		
 	}
 }
