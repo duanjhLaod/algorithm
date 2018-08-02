@@ -27,6 +27,8 @@ set(algorithms
 	src/data_struct/data_struct.cpp
 	src/sort/sort.h
 	src/sort/sort.cpp
+	src/algorithm/Dijkstra.h
+	src/algorithm/Dijkstra.cpp
 	src/main.cpp
 )
 add_executable(algorithms ${algorithms})
