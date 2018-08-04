@@ -9,6 +9,13 @@
 
 using namespace std;
 
+void swap(int *a, int i, int j)
+{
+	int temp = a[i];
+	a[i] = a[j];
+	a[j] = temp;
+}
+
 template <class T>
 int getArrayLength(T& arr)
 {
@@ -60,6 +67,17 @@ void insert_sort(int arr[], int size)
 				printf("%d ", arr[i]);
 			}
 			printf("\n");
+		}
+	}
+
+
+	for (int i = 1; i < size; ++i)
+	{
+		int j = i;
+		while (j>0 && arr[j]<arr[j-1])
+		{
+			swap(arr, j, j - 1);
+			--j;
 		}
 	}
 }
@@ -347,13 +365,6 @@ void randomize_in_place(int a[], int len)
 		a[ran] = a[i];
 		a[i] = temp;
 	}
-}
-
-void swap(int *a, int i, int j)
-{
-	int temp = a[i];
-	a[i] = a[j];
-	a[j] = temp;
 }
 
 

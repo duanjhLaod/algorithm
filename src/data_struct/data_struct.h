@@ -1,10 +1,12 @@
 #pragma once
 #include "stdio.h"
+#include "string"
 
 //最长公共子链
 int lcs_length(char* A, char* B, int lenA, int lenB);
 void test_lcs();
 void test_optimal_bst();
+void clockwisePrint();
 
 //链表对象
 struct listNode
@@ -101,4 +103,25 @@ public:
 	void tree_transplant(RBTreeNode* u, RBTreeNode* v); //将u替换v
 	void tree_delete(RBTreeNode* node); //删除节点
 	void tree_delete_fixup(RBTreeNode* node); //删除节点
+};
+
+//字典树(前缀树)
+struct TrieNode
+{
+	bool isWord;//到这个节点处是否为一个单词
+	TrieNode* next[26];
+};
+
+class Trie
+{
+public:
+	Trie();
+	~Trie();
+
+	TrieNode* root;//根节点
+
+	int getIndex(char ch);
+	void insert(std::string word); //添加
+	bool search(std::string word); //查询单词
+	bool startWith(std::string word); //查询前缀
 };

@@ -20,7 +20,7 @@ int main()
 
 	//test_optimal_bst();
 
-	DjhAlg::test_BellnanFord();
+	clockwisePrint();
 
 	system("pause");
 }

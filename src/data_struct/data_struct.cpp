@@ -758,3 +758,154 @@ int bitonic_tours(int points[][2], int len)
 		
 	}
 }
+
+Trie::Trie()
+{
+	root = new TrieNode();
+	for (int i = 0; i < 26; ++i)
+	{
+		root->next[i] = NULL;
+	}
+}
+
+Trie::~Trie()
+{
+	free(root);
+}
+
+int Trie::getIndex(char ch)
+{
+	int index = ch - 'a';
+	if (index >= 26)
+		index = -1;
+
+	return index;
+}
+
+void Trie::insert(std::string word)
+{
+	int size = word.size();
+	TrieNode* node = root;
+	for (int i = 0; i < size; ++i)
+	{
+		char c = word[i];
+		int index = getIndex(c);
+		if (index < 0) //单词非法
+			return;
+		if (NULL == node->next[index])
+		{
+			node->next[index] = new TrieNode();
+		}
+
+		node = node->next[index];
+	}
+	node->isWord = true;
+}
+
+bool Trie::search(std::string word)
+{
+	int size = word.size();
+	TrieNode* node = root;
+	for (int i = 0; i < size; ++i)
+	{
+		char c = word[i];
+		int index = getIndex(c);
+		if (index < 0) //单词非法
+			return false;
+		if (NULL == node->next[index])
+		{
+			return false;
+		}
+
+		node = node->next[index];
+	}
+
+	return node->isWord;
+}
+
+
+bool Trie::startWith(std::string word)
+{
+	int size = word.size();
+	TrieNode* node = root;
+	for (int i = 0; i < size; ++i)
+	{
+		char c = word[i];
+		int index = getIndex(c);
+		if (index < 0) //单词非法
+			return false;
+		if (NULL == node->next[index])
+		{
+			return false;
+		}
+
+		node = node->next[index];
+	}
+
+	return true;
+}
+
+//顺时针输出矩阵
+void clockwisePrint()
+{
+	int total = 5;
+	int mutix[5][5];
+	int n = 5;
+	int num = 1;
+	int turn = 0;
+	while (n>0)
+	{
+		int start = turn;
+		int end = total-turn;
+
+		if (n == 1)
+		{
+			mutix[start][end - 1] = num;
+			break;
+		}
+
+		for (int i = start; i < end; ++i)
+		{
+			mutix[start][i] = num;
+			++num;
+		}
+
+		for (int j = start + 1; j < end - 1; ++j)
+		{
+			mutix[j][end - 1] = num;
+			++num;
+		}
+
+		for (int i = end - 1; i >= start; --i)
+		{
+			mutix[end - 1][i] = num;
+			++num;
+		}
+
+		for (int i = end - 2; i > start; --i)
+		{
+			mutix[i][start] = num;
+			++num;
+		}
+
+		n -= 2;
+		++turn;
+	}
+
+	for (int i = 0; i < total; ++i)
+	{
+		for (int j = 0; j < total; ++j)
+		{
+			if (mutix[i][j] < 10)
+			{
+				printf(" %d ", mutix[i][j]);
+			}
+			else
+			{
+				printf("%d ", mutix[i][j]);
+			}
+
+		}
+		printf("\n");
+	}
+}
